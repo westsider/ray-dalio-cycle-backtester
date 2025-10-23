@@ -21,8 +21,325 @@ from backtester_enhanced import BacktesterEnhanced
 st.set_page_config(
     page_title="Ray Dalio Cycle Backtester",
     page_icon="📊",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
+
+# Apple-inspired custom CSS
+st.markdown("""
+<style>
+    /* Import fonts closer to SF Pro */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=System-ui&display=swap');
+
+    /* Global styles - SF Pro fallback stack */
+    * {
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', 'Roboto', 'Inter', sans-serif;
+        color: #1d1d1f !important;
+    }
+
+    /* Override Streamlit's default white text */
+    body, p, div, span, label, a, li, td, th {
+        color: #1d1d1f !important;
+    }
+
+    /* Main background */
+    .main {
+        background-color: #f5f5f7 !important;
+    }
+
+    .stApp {
+        background-color: #f5f5f7 !important;
+    }
+
+    [data-testid="stAppViewContainer"] {
+        background-color: #f5f5f7 !important;
+    }
+
+    /* Headers - Apple style */
+    h1 {
+        font-size: 3rem !important;
+        font-weight: 700 !important;
+        color: #1d1d1f !important;
+        letter-spacing: -0.02em !important;
+        line-height: 1.1 !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    h2 {
+        font-size: 2rem !important;
+        font-weight: 600 !important;
+        color: #1d1d1f !important;
+        letter-spacing: -0.01em !important;
+        margin-top: 2rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    h3 {
+        font-size: 1.5rem !important;
+        font-weight: 600 !important;
+        color: #1d1d1f !important;
+        margin-top: 1.5rem !important;
+    }
+
+    /* Subtitle text */
+    .main p {
+        font-size: 1rem !important;
+        color: #6e6e73 !important;
+        line-height: 1.6 !important;
+    }
+
+    /* All text elements */
+    .main div, .main span, .main label {
+        color: #1d1d1f !important;
+    }
+
+    /* Markdown text */
+    .main .stMarkdown {
+        color: #1d1d1f !important;
+    }
+
+    /* Metrics - Card style */
+    [data-testid="stMetricValue"] {
+        font-size: 2.5rem !important;
+        font-weight: 600 !important;
+        color: #1d1d1f !important;
+    }
+
+    [data-testid="stMetricLabel"] {
+        font-size: 0.875rem !important;
+        font-weight: 500 !important;
+        color: #6e6e73 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    [data-testid="stMetricDelta"] {
+        font-size: 0.875rem !important;
+    }
+
+    /* Cards/Containers - removed to avoid over-styling */
+    /* Individual components will have their own styling */
+
+    /* Info boxes */
+    .stAlert {
+        background-color: white !important;
+        border: none !important;
+        border-radius: 18px !important;
+        padding: 1.5rem !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    /* Buttons */
+    .stButton > button {
+        background: linear-gradient(180deg, #0071e3 0%, #005bb5 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 0.75rem 1.5rem !important;
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        letter-spacing: -0.01em !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 2px 8px rgba(0, 113, 227, 0.2) !important;
+    }
+
+    .stButton > button * {
+        color: white !important;
+    }
+
+    .stButton > button p {
+        color: white !important;
+    }
+
+    .stButton > button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3) !important;
+    }
+
+    /* Number input - fix black background issue */
+    .stNumberInput > div > div {
+        background-color: white !important;
+    }
+
+    .stNumberInput input[type="number"] {
+        background-color: white !important;
+        color: #1d1d1f !important;
+    }
+
+    /* Number input buttons (- and +) */
+    .stNumberInput button {
+        background-color: #e5e5e7 !important;
+        color: #1d1d1f !important;
+        border: none !important;
+        border-radius: 6px !important;
+    }
+
+    .stNumberInput button:hover {
+        background-color: #d1d1d6 !important;
+    }
+
+    .stNumberInput button * {
+        color: #1d1d1f !important;
+    }
+
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background-color: #fbfbfd !important;
+        border-right: 1px solid #d2d2d7;
+    }
+
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] div,
+    [data-testid="stSidebar"] span {
+        color: #1d1d1f !important;
+    }
+
+    [data-testid="stSidebar"] .stMarkdown {
+        color: #1d1d1f !important;
+    }
+
+    /* Radio buttons */
+    .stRadio > label {
+        font-weight: 500 !important;
+        color: #1d1d1f !important;
+    }
+
+    .stRadio label {
+        color: #1d1d1f !important;
+    }
+
+    .stRadio div[role="radiogroup"] label {
+        color: #1d1d1f !important;
+    }
+
+    /* Sliders */
+    .stSlider > div > div > div {
+        background-color: #0071e3 !important;
+    }
+
+    /* Text inputs */
+    .stTextInput > div > div > input,
+    .stNumberInput > div > div > input {
+        border-radius: 8px !important;
+        border: 1px solid #d2d2d7 !important;
+        padding: 0.5rem 0.75rem !important;
+        background-color: white !important;
+        color: #1d1d1f !important;
+    }
+
+    .stNumberInput input {
+        color: #1d1d1f !important;
+    }
+
+    /* Checkboxes */
+    .stCheckbox {
+        font-weight: 400 !important;
+    }
+
+    .stCheckbox label {
+        color: #1d1d1f !important;
+    }
+
+    /* Input labels */
+    label {
+        color: #1d1d1f !important;
+    }
+
+    /* Dataframe */
+    [data-testid="stDataFrame"] {
+        border-radius: 12px !important;
+        overflow: hidden !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+        background-color: white !important;
+    }
+
+    [data-testid="stDataFrame"] table {
+        background-color: white !important;
+    }
+
+    [data-testid="stDataFrame"] th {
+        background-color: #f5f5f7 !important;
+        color: #1d1d1f !important;
+    }
+
+    [data-testid="stDataFrame"] td {
+        background-color: white !important;
+        color: #1d1d1f !important;
+    }
+
+    /* Success message */
+    .stSuccess {
+        background-color: #d1f4e0 !important;
+        color: #0a6b32 !important;
+        border-radius: 12px !important;
+    }
+
+    /* Dividers */
+    hr {
+        border: none !important;
+        border-top: 1px solid #d2d2d7 !important;
+        margin: 2rem 0 !important;
+    }
+
+    /* Download button */
+    .stDownloadButton > button {
+        background-color: white !important;
+        color: #0071e3 !important;
+        border: 1px solid #0071e3 !important;
+        border-radius: 12px !important;
+    }
+
+    .stDownloadButton > button:hover {
+        background-color: #f5f5f7 !important;
+    }
+
+    /* Hide streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+
+    /* Spacing */
+    .block-container {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+        max-width: 1400px !important;
+    }
+
+    /* Column containers */
+    [data-testid="column"] {
+        background-color: white;
+        border-radius: 18px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Expander */
+    .streamlit-expanderHeader {
+        background-color: white !important;
+        border-radius: 12px !important;
+        font-weight: 500 !important;
+    }
+
+    /* Tab styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+    }
+
+    /* Remove dark mode elements */
+    [data-testid="stHeader"] {
+        background-color: transparent !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 
 # Cache data fetching to avoid re-downloading every time
@@ -187,12 +504,13 @@ def get_cycle_explanation(stage, economic_data):
 def main():
     """Main Streamlit app"""
 
-    # Title and description
-    st.title("📊 Ray Dalio Economic Cycle Backtester")
+    # Title and description - Apple style
     st.markdown("""
-    Test trading strategies based on economic cycle detection (Expansion, Peak, Contraction, Recovery).
-    This tool fetches real-time economic data from FRED and market data from Yahoo Finance.
-    """)
+        <h1 style='margin-bottom: 0.25rem;'>Economic Cycle Backtester.</h1>
+        <p style='font-size: 1.5rem; color: #6e6e73; font-weight: 400; margin-bottom: 2rem;'>
+            Test trading strategies based on Ray Dalio's economic cycle framework.
+        </p>
+    """, unsafe_allow_html=True)
 
     # Sidebar for settings
     st.sidebar.header("⚙️ Settings")
@@ -287,8 +605,8 @@ def main():
                 with col1:
                     st.metric("Current Cycle Stage", current_stage)
                 with col2:
-                    start_str = cycle_stages.index[0].strftime('%Y-%m-%d')
-                    end_str = cycle_stages.index[-1].strftime('%Y-%m-%d')
+                    start_str = cycle_stages.index[0].strftime('%B %d, %Y')
+                    end_str = cycle_stages.index[-1].strftime('%B %d, %Y')
                     st.metric("Data Period", f"{start_str} to {end_str}")
                 with col3:
                     latest_price = float(spy_data['Close'].iloc[-1])
@@ -604,7 +922,21 @@ def display_charts(results, backtester, title):
         row=3, col=1
     )
 
-    fig.update_layout(height=900, showlegend=True, hovermode='x unified')
+    fig.update_layout(
+        height=900,
+        showlegend=True,
+        hovermode='x unified',
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        font=dict(color='#1d1d1f', size=12),
+        xaxis=dict(color='#1d1d1f'),
+        yaxis=dict(color='#1d1d1f'),
+        title_font=dict(color='#1d1d1f')
+    )
+
+    # Make all axis text dark
+    fig.update_xaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
+    fig.update_yaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
 
     st.plotly_chart(fig, use_container_width=True)
 
@@ -676,7 +1008,28 @@ def display_comparison_chart(results_orig, results_enh):
         row=2, col=1
     )
 
-    fig.update_layout(height=700, showlegend=True, hovermode='x unified')
+    fig.update_layout(
+        height=700,
+        showlegend=True,
+        hovermode='x unified',
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        font=dict(color='#1d1d1f', size=12),
+        xaxis=dict(color='#1d1d1f'),
+        yaxis=dict(color='#1d1d1f'),
+        title_font=dict(color='#1d1d1f'),
+        legend=dict(
+            bgcolor='white',
+            bordercolor='#d2d2d7',
+            borderwidth=1,
+            font=dict(color='#1d1d1f')
+        )
+    )
+
+    # Make all axis text and subplot titles dark
+    fig.update_xaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
+    fig.update_yaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
+    fig.update_annotations(font=dict(color='#1d1d1f', size=14))
 
     st.plotly_chart(fig, use_container_width=True)
 

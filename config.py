@@ -5,7 +5,7 @@ Configuration for economic indicators and FRED API
 # FRED API Key (users should set their own)
 # Get your free API key at: https://fred.stlouisfed.org/docs/api/api_key.html
 # IMPORTANT: Replace with your own API key before using
-FRED_API_KEY = 'YOUR_API_KEY_HERE'  # Set to your FRED API key or use environment variable
+FRED_API_KEY = 'your_api_key_here'  # Set to your FRED API key or use environment variable
 
 # Key Economic Indicators (FRED Series IDs)
 INDICATORS = {
