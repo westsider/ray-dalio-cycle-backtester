@@ -1,0 +1,87 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2865
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 .SFNS-Semibold;\f1\fnil\fcharset0 HelveticaNeue-Bold;\f2\fnil\fcharset0 .SFNS-Regular;
+\f3\fswiss\fcharset0 Helvetica;\f4\froman\fcharset0 TimesNewRomanPSMT;}
+{\colortbl;\red255\green255\blue255;\red14\green14\blue14;}
+{\*\expandedcolortbl;;\cssrgb\c6700\c6700\c6700;}
+\margl1440\margr1440\vieww24120\viewh13820\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sl324\slmult1\pardirnatural\partightenfactor0
+
+\f0\b\fs34 \cf2 \uc0\u55357 \u56536  README \'97 Ray Dalio Economic Cycle Backtest\
+
+\f1\fs28 \cf2 Project goal:
+\f2\b0 \cf2 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sl324\slmult1\pardirnatural\partightenfactor0
+\cf2 Build a data-driven model that detects where we are in the economic cycle (Expansion, Peak, Contraction, Recovery) and tests simple asset allocation rules \'97 starting with buying the 
+\f1\b \cf2 S&P 500 (SPY)
+\f2\b0 \cf2  during expansions and staying in 
+\f1\b \cf2 cash
+\f2\b0 \cf2  otherwise.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f3\fs24 \cf0 \
+\uc0\u11835 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sl324\slmult1\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sl324\slmult1\pardirnatural\partightenfactor0
+
+\f0\b\fs30 \cf2 \uc0\u55358 \u56813  Concept Overview
+\f2\b0\fs28 \cf2 \
+\
+Inspired by 
+\f1\b \cf2 Ray Dalio\'92s framework
+\f2\b0 \cf2 , the project models the economy as a cycle driven by changes in:\
+\pard\tqr\tx100\tx260\li260\fi-260\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	Growth (GDP)\
+	\'95	Inflation\
+	\'95	Credit and interest rates\
+	\'95	Employment\
+\
+Using public macroeconomic data (e.g., FRED) and market data (SPY from Yahoo Finance), it identifies the 
+\f1\b current stage of the cycle
+\f2\b0  and backtests simple investment rules.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f3\fs24 \cf0 \
+\uc0\u11835 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sl324\slmult1\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sl324\slmult1\pardirnatural\partightenfactor0
+
+\f0\b\fs30 \cf2 \uc0\u9881 \u65039  Project Goals
+\f2\b0\fs28 \cf2 \
+\pard\tqr\tx260\tx420\li420\fi-420\sl324\slmult1\sb240\partightenfactor0
+
+\f4 \cf2 	1.	
+\f1\b Economic Model
+\f2\b0 \
+\pard\tqr\tx500\tx660\li660\fi-660\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	Determine cycle stage (Expansion, Peak, Contraction, Recovery) from macro indicators.\
+	\'95	Optionally use machine-learning or rule-based classification later.\
+\pard\tqr\tx260\tx420\li420\fi-420\sl324\slmult1\sb240\partightenfactor0
+
+\f4 \cf2 	2.	
+\f1\b Backtesting Engine
+\f2\b0 \
+\pard\tqr\tx500\tx660\li660\fi-660\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	Start simple: long SPY during Expansion, cash otherwise.\
+	\'95	Extend with more signals (e.g., yield curve, PMI, unemployment).\
+\pard\tqr\tx260\tx420\li420\fi-420\sl324\slmult1\sb240\partightenfactor0
+
+\f4 \cf2 	3.	
+\f1\b Visualization
+\f2\b0 \
+\pard\tqr\tx500\tx660\li660\fi-660\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	Plot cumulative growth vs Buy & Hold.\
+	\'95	Show drawdowns, cycle transitions, and equity curve overlays.\
+\pard\tqr\tx260\tx420\li420\fi-420\sl324\slmult1\sb240\partightenfactor0
+
+\f4 \cf2 	4.	
+\f1\b Future Enhancements
+\f2\b0 \
+\pard\tqr\tx500\tx660\li660\fi-660\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	Add other asset classes (Bonds, Gold, Commodities).\
+	\'95	Compare \'93All Weather\'94-style allocations.\
+\
+}
