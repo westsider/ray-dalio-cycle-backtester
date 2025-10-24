@@ -1265,8 +1265,11 @@ def show_swing_trading_page():
                         economic_data, _ = fetch_data(start_date)
                         cycle_stages, _ = classify_cycles(economic_data, start_date)
 
-                        # Create expansion filter
+                        # Create expansion filter with DatetimeIndex
                         economic_expansion = (cycle_stages == 'Expansion')
+                        # Ensure index is DatetimeIndex
+                        if not isinstance(economic_expansion.index, pd.DatetimeIndex):
+                            economic_expansion.index = pd.DatetimeIndex(economic_expansion.index)
 
                 st.success(f"✓ Loaded {len(intraday_data)} 30-minute bars for {symbol}")
 
