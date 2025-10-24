@@ -15,6 +15,9 @@ from data_fetcher import EconomicDataFetcher
 from cycle_classifier import EconomicCycleClassifier
 from backtester import Backtester
 from backtester_enhanced import BacktesterEnhanced
+from intraday_fetcher import IntradayDataFetcher
+from swing_backtester import SwingBacktester
+import config
 
 
 # Page config
@@ -512,8 +515,21 @@ def main():
         </p>
     """, unsafe_allow_html=True)
 
+    # Create tabs for navigation
+    tab1, tab2 = st.tabs(["📈 Economic Cycle Strategy", "⚡ Swing Trading"])
+
+    with tab1:
+        show_economic_cycle_page()
+
+    with tab2:
+        show_swing_trading_page()
+
+
+def show_economic_cycle_page():
+    """Economic Cycle Strategy Page"""
+
     # Sidebar for settings
-    st.sidebar.header("⚙️ Settings")
+    st.sidebar.header("⚙️ Economic Cycle Settings")
 
     # Date range presets
     st.sidebar.subheader("Date Range")
@@ -1070,6 +1086,416 @@ def display_trades(backtester):
         )
     else:
         st.info("No trades executed")
+
+
+def show_swing_trading_page():
+    """Swing Trading Strategy Page"""
+
+    st.sidebar.header("⚡ Swing Trading Settings")
+
+    # Symbol selection
+    symbol = st.sidebar.selectbox(
+        "Symbol",
+        config.SWING_TRADING['SYMBOLS'],
+        index=0
+    )
+
+    # Backtest period
+    days_back = st.sidebar.slider(
+        "Backtest Period (days)",
+        min_value=7,
+        max_value=365,
+        value=config.SWING_TRADING['BACKTEST_DAYS'],
+        step=7
+    )
+
+    # Initial capital
+    initial_capital = st.sidebar.number_input(
+        "Initial Capital ($)",
+        min_value=1000,
+        max_value=10000000,
+        value=100000,
+        step=10000
+    )
+
+    st.sidebar.subheader("Technical Indicators")
+
+    # Bollinger Bands
+    bb_period = st.sidebar.slider(
+        "Bollinger Bands Period",
+        min_value=10,
+        max_value=50,
+        value=config.SWING_TRADING['BOLLINGER_PERIOD'],
+        step=1
+    )
+
+    bb_std = st.sidebar.slider(
+        "Bollinger Bands Std Dev",
+        min_value=1.0,
+        max_value=3.0,
+        value=config.SWING_TRADING['BOLLINGER_STD'],
+        step=0.1
+    )
+
+    # RSI
+    rsi_period = st.sidebar.slider(
+        "RSI Period",
+        min_value=7,
+        max_value=21,
+        value=config.SWING_TRADING['RSI_PERIOD'],
+        step=1
+    )
+
+    rsi_entry = st.sidebar.slider(
+        "RSI Entry Threshold (Oversold)",
+        min_value=20,
+        max_value=40,
+        value=config.SWING_TRADING['ENTRY_RSI_THRESHOLD'],
+        step=1
+    )
+
+    rsi_exit = st.sidebar.slider(
+        "RSI Exit Threshold (Overbought)",
+        min_value=60,
+        max_value=80,
+        value=config.SWING_TRADING['RSI_OVERBOUGHT'],
+        step=1
+    )
+
+    st.sidebar.subheader("Entry/Exit Rules")
+
+    entry_condition = st.sidebar.selectbox(
+        "Entry Condition",
+        ["bb_rsi", "kc_rsi", "squeeze"],
+        index=0,
+        help="bb_rsi: Price below BB lower + RSI oversold\nkc_rsi: Price below KC lower + RSI oversold\nsqueeze: Squeeze active + conditions"
+    )
+
+    exit_condition = st.sidebar.selectbox(
+        "Exit Condition",
+        ["bb_upper", "bb_middle", "rsi", "kc_upper"],
+        index=0,
+        help="bb_upper: Price crosses BB upper band\nbb_middle: Price crosses BB middle\nrsi: RSI overbought\nkc_upper: Price crosses KC upper"
+    )
+
+    # Risk management
+    st.sidebar.subheader("Risk Management")
+
+    stop_loss_pct = st.sidebar.slider(
+        "Stop Loss (%)",
+        min_value=0.5,
+        max_value=10.0,
+        value=config.SWING_TRADING['STOP_LOSS_PCT'] * 100,
+        step=0.5
+    ) / 100
+
+    use_profit_target = st.sidebar.checkbox("Use Profit Target", value=False)
+    profit_target_pct = None
+    if use_profit_target:
+        profit_target_pct = st.sidebar.slider(
+            "Profit Target (%)",
+            min_value=1.0,
+            max_value=20.0,
+            value=5.0,
+            step=0.5
+        ) / 100
+
+    # Economic filter
+    use_economic_filter = st.sidebar.checkbox(
+        "Only trade during Economic Expansion",
+        value=False,
+        help="Filter trades to only occur during economic expansion periods"
+    )
+
+    # Run backtest button
+    run_swing_backtest = st.sidebar.button("🚀 Run Swing Backtest", type="primary")
+
+    # Main content
+    if run_swing_backtest:
+        with st.spinner(f"Fetching {symbol} 30-minute data from Polygon.io..."):
+            try:
+                # Fetch intraday data
+                fetcher = IntradayDataFetcher()
+                intraday_data = fetcher.fetch_30min_bars(symbol, days_back=days_back)
+
+                # Fetch economic data if using filter
+                economic_expansion = None
+                if use_economic_filter:
+                    with st.spinner("Fetching economic cycle data..."):
+                        start_date = (datetime.now() - pd.Timedelta(days=days_back)).strftime('%Y-%m-%d')
+                        economic_data, _ = fetch_data(start_date)
+                        cycle_stages, _ = classify_cycles(economic_data, start_date)
+
+                        # Create expansion filter
+                        economic_expansion = (cycle_stages == 'Expansion')
+
+                st.success(f"✓ Loaded {len(intraday_data)} 30-minute bars for {symbol}")
+
+                # Initialize backtester
+                backtester = SwingBacktester(intraday_data, initial_capital=initial_capital)
+
+                # Add indicators
+                indicator_config = {
+                    'bb_period': bb_period,
+                    'bb_std': bb_std,
+                    'kc_period': config.SWING_TRADING['KELTNER_PERIOD'],
+                    'kc_mult': config.SWING_TRADING['KELTNER_ATR_MULT'],
+                    'rsi_period': rsi_period,
+                    'atr_period': 14
+                }
+                backtester.add_indicators(indicator_config)
+
+                with st.spinner("Running swing trading backtest..."):
+                    # Run strategy
+                    results = backtester.run_strategy(
+                        entry_condition=entry_condition,
+                        exit_condition=exit_condition,
+                        rsi_threshold=rsi_entry,
+                        rsi_exit_threshold=rsi_exit,
+                        profit_target_pct=profit_target_pct,
+                        stop_loss_pct=stop_loss_pct,
+                        economic_expansion=economic_expansion
+                    )
+
+                # Display results
+                display_swing_results(backtester, symbol)
+
+            except Exception as e:
+                st.error(f"Error: {str(e)}")
+                import traceback
+                st.code(traceback.format_exc())
+
+    else:
+        # Show instructions
+        st.info("👈 Configure swing trading settings in the sidebar and click 'Run Swing Backtest'")
+
+        st.subheader("📖 About Swing Trading Strategy")
+        st.markdown("""
+        This swing trading strategy uses technical indicators to identify short-term trading opportunities
+        on 30-minute bars.
+
+        **Entry Signals:**
+        - **BB + RSI**: Enter when price drops below lower Bollinger Band AND RSI is oversold
+        - **KC + RSI**: Enter when price drops below lower Keltner Channel AND RSI is oversold
+        - **Squeeze**: Enter during a squeeze (BB inside KC) with oversold conditions
+
+        **Exit Signals:**
+        - **BB Upper**: Exit when price crosses above upper Bollinger Band
+        - **BB Middle**: Exit when price returns to middle Bollinger Band
+        - **RSI**: Exit when RSI becomes overbought
+        - **Stop Loss**: Always active to limit downside risk
+
+        **Optional:**
+        - Filter trades to only occur during economic expansion periods
+        - Set profit targets for systematic profit-taking
+        """)
+
+
+def display_swing_results(backtester, symbol):
+    """Display swing trading backtest results"""
+
+    st.header(f"Swing Trading Results: {symbol}")
+
+    # Performance metrics
+    st.subheader("📊 Performance Metrics")
+
+    m = backtester.metrics
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.metric("Total Return", f"{m['total_return']:.2f}%")
+        st.metric("Annual Return", f"{m['annual_return']:.2f}%")
+
+    with col2:
+        st.metric("Sharpe Ratio", f"{m['sharpe_ratio']:.2f}")
+        st.metric("Volatility", f"{m['volatility']:.2f}%")
+
+    with col3:
+        st.metric("Max Drawdown", f"{m['max_drawdown']:.2f}%")
+        st.metric("Final Value", f"${m['final_value']:,.0f}")
+
+    with col4:
+        st.metric("Total Trades", f"{int(m['total_trades'])}")
+        st.metric("Win Rate", f"{m['win_rate']:.1f}%")
+
+    # Additional trade statistics
+    if m['total_trades'] > 0:
+        st.subheader("📈 Trade Statistics")
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric("Avg Win", f"{m['avg_win']:.2f}%")
+        with col2:
+            st.metric("Avg Loss", f"{m['avg_loss']:.2f}%")
+        with col3:
+            st.metric("Avg Return/Trade", f"{m['avg_return']:.2f}%")
+
+    # Charts
+    display_swing_charts(backtester, symbol)
+
+    # Trade history
+    display_swing_trades(backtester)
+
+
+def display_swing_charts(backtester, symbol):
+    """Display swing trading charts"""
+
+    st.subheader("📊 Performance Charts")
+
+    results = backtester.results
+
+    # Create subplots
+    fig = make_subplots(
+        rows=4, cols=1,
+        subplot_titles=(
+            f'{symbol} Price with Bollinger Bands',
+            'RSI Indicator',
+            'Equity Curve',
+            'Position'
+        ),
+        vertical_spacing=0.08,
+        row_heights=[0.3, 0.2, 0.3, 0.2]
+    )
+
+    # Plot 1: Price with Bollinger Bands
+    fig.add_trace(
+        go.Scatter(x=results.index, y=results['close'],
+                  name='Close', line=dict(color='black', width=1)),
+        row=1, col=1
+    )
+    fig.add_trace(
+        go.Scatter(x=results.index, y=results['bb_upper'],
+                  name='BB Upper', line=dict(color='red', width=1, dash='dash')),
+        row=1, col=1
+    )
+    fig.add_trace(
+        go.Scatter(x=results.index, y=results['bb_middle'],
+                  name='BB Middle', line=dict(color='blue', width=1, dash='dot')),
+        row=1, col=1
+    )
+    fig.add_trace(
+        go.Scatter(x=results.index, y=results['bb_lower'],
+                  name='BB Lower', line=dict(color='green', width=1, dash='dash')),
+        row=1, col=1
+    )
+
+    # Add buy/sell signals
+    buy_signals = results[results['signal'] == 'BUY']
+    sell_signals = results[results['signal'].str.contains('SELL', na=False)]
+
+    if len(buy_signals) > 0:
+        fig.add_trace(
+            go.Scatter(x=buy_signals.index, y=buy_signals['close'],
+                      mode='markers', name='Buy',
+                      marker=dict(color='green', size=10, symbol='triangle-up')),
+            row=1, col=1
+        )
+
+    if len(sell_signals) > 0:
+        fig.add_trace(
+            go.Scatter(x=sell_signals.index, y=sell_signals['close'],
+                      mode='markers', name='Sell',
+                      marker=dict(color='red', size=10, symbol='triangle-down')),
+            row=1, col=1
+        )
+
+    # Plot 2: RSI
+    fig.add_trace(
+        go.Scatter(x=results.index, y=results['rsi'],
+                  name='RSI', line=dict(color='purple', width=2)),
+        row=2, col=1
+    )
+    # Add RSI levels
+    fig.add_hline(y=70, line_dash="dash", line_color="red", row=2, col=1)
+    fig.add_hline(y=30, line_dash="dash", line_color="green", row=2, col=1)
+
+    # Plot 3: Equity curve
+    fig.add_trace(
+        go.Scatter(x=results.index, y=results['equity'],
+                  name='Equity', line=dict(color='blue', width=2), fill='tozeroy'),
+        row=3, col=1
+    )
+
+    # Plot 4: Position
+    fig.add_trace(
+        go.Scatter(x=results.index, y=(results['position'] > 0).astype(int),
+                  name='Position', fill='tozeroy', line=dict(color='green')),
+        row=4, col=1
+    )
+
+    # Update layout
+    fig.update_yaxes(title_text="Price ($)", row=1, col=1)
+    fig.update_yaxes(title_text="RSI", row=2, col=1)
+    fig.update_yaxes(title_text="Equity ($)", row=3, col=1)
+    fig.update_yaxes(title_text="Position", tickvals=[0, 1], ticktext=['Out', 'In'], row=4, col=1)
+    fig.update_xaxes(title_text="Time", row=4, col=1)
+
+    fig.update_layout(
+        height=1000,
+        showlegend=True,
+        hovermode='x unified',
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        font=dict(color='#1d1d1f', size=12)
+    )
+
+    # Make all axis text dark
+    fig.update_xaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
+    fig.update_yaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
+
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def display_swing_trades(backtester):
+    """Display swing trade history"""
+
+    st.subheader("📝 Trade History")
+
+    trades_df = backtester.get_trades_df()
+
+    if len(trades_df) > 0:
+        # Format display
+        display_df = trades_df.copy()
+        display_df['entry_time'] = pd.to_datetime(display_df['entry_time']).dt.strftime('%Y-%m-%d %H:%M')
+        display_df['exit_time'] = pd.to_datetime(display_df['exit_time']).dt.strftime('%Y-%m-%d %H:%M')
+        display_df['entry_price'] = display_df['entry_price'].round(2)
+        display_df['exit_price'] = display_df['exit_price'].round(2)
+        display_df['return_pct'] = display_df['return_pct'].round(2)
+        display_df['profit'] = display_df['profit'].round(2)
+
+        # Color code returns
+        def color_returns(val):
+            if isinstance(val, (int, float)):
+                color = 'green' if val > 0 else 'red'
+                return f'color: {color}'
+            return ''
+
+        styled_trades = display_df.style.map(
+            color_returns,
+            subset=['return_pct', 'profit']
+        )
+
+        st.dataframe(styled_trades, use_container_width=True)
+
+        # Summary by exit reason
+        st.subheader("Exit Reason Analysis")
+        exit_summary = trades_df.groupby('exit_reason').agg({
+            'return_pct': ['count', 'mean', 'sum'],
+            'profit': 'sum'
+        }).round(2)
+        st.dataframe(exit_summary, use_container_width=True)
+
+        # Download button
+        csv = trades_df.to_csv(index=False)
+        st.download_button(
+            label="📥 Download Trade History as CSV",
+            data=csv,
+            file_name=f"swing_trades_{datetime.now().strftime('%Y%m%d')}.csv",
+            mime="text/csv"
+        )
+    else:
+        st.info("No trades executed during this period")
 
 
 if __name__ == "__main__":
