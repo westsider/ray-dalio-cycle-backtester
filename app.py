@@ -992,7 +992,7 @@ def display_charts(results, backtester, title):
     fig.update_xaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
     fig.update_yaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
 
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def display_comparison_chart(results_orig, results_enh):
@@ -1085,7 +1085,7 @@ def display_comparison_chart(results_orig, results_enh):
     fig.update_yaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
     fig.update_annotations(font=dict(color='#1d1d1f', size=14))
 
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def display_trades(backtester):
@@ -1522,7 +1522,7 @@ def display_swing_charts(backtester, symbol):
     fig.update_xaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
     fig.update_yaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
 
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def display_swing_trades(backtester):
