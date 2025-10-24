@@ -848,7 +848,7 @@ def run_comparison(spy_data, cycle_stages, initial_capital,
             ]
         })
 
-        st.dataframe(comparison_df, use_container_width=True)
+        st.dataframe(comparison_df, width='stretch')
 
         # Winner announcement
         best_return = max(
@@ -992,7 +992,7 @@ def display_charts(results, backtester, title):
     fig.update_xaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
     fig.update_yaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
 
 
 def display_comparison_chart(results_orig, results_enh):
@@ -1085,7 +1085,7 @@ def display_comparison_chart(results_orig, results_enh):
     fig.update_yaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
     fig.update_annotations(font=dict(color='#1d1d1f', size=14))
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
 
 
 def display_trades(backtester):
@@ -1112,7 +1112,7 @@ def display_trades(backtester):
             subset=['return_pct']
         )
 
-        st.dataframe(styled_trades, use_container_width=True)
+        st.dataframe(styled_trades, width='stretch')
 
         # Download button
         csv = trades.to_csv(index=False)
@@ -1271,14 +1271,29 @@ def show_swing_trading_page():
                             cycle_stages, _ = classify_cycles(economic_data, start_date)
 
                             # Create expansion filter with DatetimeIndex
-                            economic_expansion = (cycle_stages == 'Expansion')
+                            economic_expansion = (cycle_stages == 'Expansion').copy()
+
                             # Ensure index is DatetimeIndex
                             if not isinstance(economic_expansion.index, pd.DatetimeIndex):
-                                economic_expansion.index = pd.DatetimeIndex(economic_expansion.index)
+                                # Try to convert to DatetimeIndex
+                                try:
+                                    economic_expansion.index = pd.to_datetime(economic_expansion.index)
+                                except Exception as idx_err:
+                                    # If conversion fails, create a new series with proper index
+                                    economic_expansion = pd.Series(
+                                        economic_expansion.values,
+                                        index=pd.to_datetime(economic_expansion.index),
+                                        name='expansion'
+                                    )
 
-                            st.success(f"✓ Economic cycle data loaded ({len(economic_expansion)} days)")
+                            # Sort by index to ensure asof works properly
+                            economic_expansion = economic_expansion.sort_index()
+
+                            st.success(f"✓ Economic cycle data loaded ({len(economic_expansion)} days, {economic_expansion.sum()} expansion days)")
                         except Exception as e:
                             st.warning(f"Could not load economic data: {str(e)}. Trading without economic filter.")
+                            import traceback
+                            st.code(traceback.format_exc())
                             economic_expansion = None
 
                 st.success(f"✓ Loaded {len(intraday_data)} 30-minute bars for {symbol}")
@@ -1496,7 +1511,7 @@ def display_swing_charts(backtester, symbol):
     fig.update_xaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
     fig.update_yaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
 
 
 def display_swing_trades(backtester):
@@ -1528,7 +1543,7 @@ def display_swing_trades(backtester):
             subset=['return_pct', 'profit']
         )
 
-        st.dataframe(styled_trades, use_container_width=True)
+        st.dataframe(styled_trades, width='stretch')
 
         # Summary by exit reason
         st.subheader("Exit Reason Analysis")
@@ -1536,7 +1551,7 @@ def display_swing_trades(backtester):
             'return_pct': ['count', 'mean', 'sum'],
             'profit': 'sum'
         }).round(2)
-        st.dataframe(exit_summary, use_container_width=True)
+        st.dataframe(exit_summary, width='stretch')
 
         # Download button
         csv = trades_df.to_csv(index=False)
