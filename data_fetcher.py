@@ -62,6 +62,10 @@ class EconomicDataFetcher:
         # Combine all series into a single DataFrame
         df = pd.DataFrame(data_dict)
 
+        # Ensure index is DatetimeIndex (FRED series should have datetime index)
+        if not isinstance(df.index, pd.DatetimeIndex):
+            df.index = pd.to_datetime(df.index)
+
         # Calculate derived indicators
         if 'TREASURY_10Y' in df.columns and 'TREASURY_2Y' in df.columns:
             df['YIELD_CURVE'] = df['TREASURY_10Y'] - df['TREASURY_2Y']
