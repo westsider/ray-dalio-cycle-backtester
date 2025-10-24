@@ -1501,10 +1501,13 @@ def display_swing_charts(backtester, symbol):
     fig.update_yaxes(title_text="Price ($)", row=1, col=1)
     fig.update_yaxes(title_text="RSI", row=2, col=1)
 
-    # Set equity curve Y-axis range with padding below minimum
+    # Set equity curve Y-axis range with tight padding for better visualization
     equity_min = results['equity'].min()
     equity_max = results['equity'].max()
-    y_range = [equity_min - 10000, equity_max + 5000]  # 10k padding below, 5k above
+    equity_range = equity_max - equity_min
+    # Use 5% padding on each side, or minimum $2000
+    padding = max(equity_range * 0.05, 2000)
+    y_range = [equity_min - padding, equity_max + padding]
     fig.update_yaxes(title_text="Equity ($)", range=y_range, row=3, col=1)
     fig.update_yaxes(title_text="Position", tickvals=[0, 1], ticktext=['Out', 'In'], row=4, col=1)
     fig.update_xaxes(title_text="Time", row=4, col=1)
