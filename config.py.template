@@ -1,11 +1,12 @@
 """
 Configuration for economic indicators and FRED API
+Copy this file to config.py and add your API keys
 """
 
 # FRED API Key (users should set their own)
 # Get your free API key at: https://fred.stlouisfed.org/docs/api/api_key.html
 # IMPORTANT: Replace with your own API key before using
-FRED_API_KEY = 'ebde2f9652163f7bc1694fa764f8ea44'  # Set to your FRED API key or use environment variable
+FRED_API_KEY = 'your_fred_api_key_here'
 
 # Key Economic Indicators (FRED Series IDs)
 INDICATORS = {
@@ -38,7 +39,7 @@ END_DATE = None  # None means today
 
 # Polygon.io API Key for intraday data
 # Get your free API key at: https://polygon.io/
-POLYGON_API_KEY = 'ozy1q3Aj1rMRu333da1dVb_syktNSXow'
+POLYGON_API_KEY = 'your_polygon_api_key_here'
 
 # Swing Trading Configuration
 SWING_TRADING = {

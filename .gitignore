@@ -51,5 +51,5 @@ Thumbs.db
 # Environment variables
 .env
 
-# API Keys (keep config.py but warn users to change key)
-# config.py is included but users should update with their own API key
+# API Keys - DO NOT commit config.py with real keys!
+config.py
