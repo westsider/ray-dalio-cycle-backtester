@@ -3,10 +3,22 @@ Configuration for economic indicators and FRED API
 Copy this file to config.py and add your API keys
 """
 
+import os
+import streamlit as st
+
 # FRED API Key (users should set their own)
 # Get your free API key at: https://fred.stlouisfed.org/docs/api/api_key.html
-# IMPORTANT: Replace with your own API key before using
-FRED_API_KEY = 'your_fred_api_key_here'
+# For local development: set your key below
+# For Streamlit Cloud: set in Secrets management
+try:
+    # Try to get from Streamlit secrets (for cloud deployment)
+    FRED_API_KEY = st.secrets.get("FRED_API_KEY", None)
+except:
+    FRED_API_KEY = None
+
+# Fallback to local config if not in secrets
+if not FRED_API_KEY:
+    FRED_API_KEY = os.environ.get('FRED_API_KEY', 'your_fred_api_key_here')
 
 # Key Economic Indicators (FRED Series IDs)
 INDICATORS = {
@@ -39,7 +51,15 @@ END_DATE = None  # None means today
 
 # Polygon.io API Key for intraday data
 # Get your free API key at: https://polygon.io/
-POLYGON_API_KEY = 'your_polygon_api_key_here'
+# For local development: set your key below
+# For Streamlit Cloud: set in Secrets management
+try:
+    POLYGON_API_KEY = st.secrets.get("POLYGON_API_KEY", None)
+except:
+    POLYGON_API_KEY = None
+
+if not POLYGON_API_KEY:
+    POLYGON_API_KEY = os.environ.get('POLYGON_API_KEY', 'your_polygon_api_key_here')
 
 # Swing Trading Configuration
 SWING_TRADING = {
