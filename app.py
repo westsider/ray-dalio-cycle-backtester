@@ -238,6 +238,43 @@ st.markdown("""
         color: #1d1d1f !important;
     }
 
+    /* Selectbox styling */
+    .stSelectbox > div > div {
+        background-color: white !important;
+    }
+
+    .stSelectbox input {
+        background-color: white !important;
+        color: #1d1d1f !important;
+    }
+
+    .stSelectbox [data-baseweb="select"] {
+        background-color: white !important;
+    }
+
+    .stSelectbox [data-baseweb="select"] > div {
+        background-color: white !important;
+        color: #1d1d1f !important;
+    }
+
+    /* Selectbox dropdown menu */
+    [data-baseweb="popover"] {
+        background-color: white !important;
+    }
+
+    [role="listbox"] {
+        background-color: white !important;
+    }
+
+    [role="option"] {
+        background-color: white !important;
+        color: #1d1d1f !important;
+    }
+
+    [role="option"]:hover {
+        background-color: #f5f5f7 !important;
+    }
+
     /* Checkboxes */
     .stCheckbox {
         font-weight: 400 !important;
