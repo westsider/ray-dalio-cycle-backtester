@@ -75,7 +75,7 @@ class EconomicCycleClassifier:
             stages.loc[idx] = stage.value if stage else None
 
         # Forward fill missing values
-        stages = stages.fillna(method='ffill')
+        stages = stages.ffill()
 
         self.classifications = stages
         print(f"✓ Classified {len(stages)} periods")

@@ -1266,7 +1266,9 @@ def show_swing_trading_page():
                 if use_economic_filter:
                     with st.spinner("Fetching economic cycle data from FRED..."):
                         try:
-                            start_date = (datetime.now() - pd.Timedelta(days=days_back)).strftime('%Y-%m-%d')
+                            # Need more historical data for cycle classification (requires 180+ days)
+                            lookback_days = max(days_back, 365)  # At least 1 year
+                            start_date = (datetime.now() - pd.Timedelta(days=lookback_days)).strftime('%Y-%m-%d')
                             economic_data, _ = fetch_data(start_date)
                             cycle_stages, _ = classify_cycles(economic_data, start_date)
 
@@ -1289,7 +1291,11 @@ def show_swing_trading_page():
                             # Sort by index to ensure asof works properly
                             economic_expansion = economic_expansion.sort_index()
 
-                            st.success(f"✓ Economic cycle data loaded ({len(economic_expansion)} days, {economic_expansion.sum()} expansion days)")
+                            expansion_days = economic_expansion.sum()
+                            if expansion_days == 0:
+                                st.warning(f"⚠️ No expansion periods detected in the data. The economic filter may prevent all trades. Consider disabling it or extending the backtest period.")
+                            else:
+                                st.success(f"✓ Economic cycle data loaded ({len(economic_expansion)} days, {expansion_days} expansion days)")
                         except Exception as e:
                             st.warning(f"Could not load economic data: {str(e)}. Trading without economic filter.")
                             import traceback

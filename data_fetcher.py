@@ -101,7 +101,7 @@ class EconomicDataFetcher:
         print(f"Fetching {ticker} data from Yahoo Finance...")
 
         try:
-            data = yf.download(ticker, start=start_date, end=end_date, progress=False)
+            data = yf.download(ticker, start=start_date, end=end_date, progress=False, auto_adjust=False)
             print(f"✓ Fetched {ticker} data from {data.index[0].date()} to {data.index[-1].date()}")
             return data
         except Exception as e:
