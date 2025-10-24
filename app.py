@@ -565,7 +565,8 @@ def show_economic_cycle_page():
         min_value=1000,
         max_value=10000000,
         value=100000,
-        step=10000
+        step=10000,
+        key="economic_initial_capital"
     )
 
     # Strategy selection
@@ -1115,7 +1116,8 @@ def show_swing_trading_page():
         min_value=1000,
         max_value=10000000,
         value=100000,
-        step=10000
+        step=10000,
+        key="swing_initial_capital"
     )
 
     st.sidebar.subheader("Technical Indicators")
