@@ -83,14 +83,22 @@ class SwingBacktester:
             can_trade = True
             if economic_expansion is not None:
                 # Match timestamp to daily economic data
-                date = timestamp.date()
+                date = pd.Timestamp(timestamp.date())
+
+                # Try exact match first
                 if date in economic_expansion.index:
                     can_trade = economic_expansion.loc[date]
                 else:
-                    # Find nearest date
-                    nearest_idx = economic_expansion.index.searchsorted(date)
-                    if nearest_idx < len(economic_expansion):
-                        can_trade = economic_expansion.iloc[nearest_idx]
+                    # Find nearest previous date
+                    try:
+                        # Use asof to get the most recent value
+                        can_trade = economic_expansion.asof(date)
+                        # If asof returns NaN, default to False (don't trade)
+                        if pd.isna(can_trade):
+                            can_trade = False
+                    except:
+                        # If any error, default to True (trade)
+                        can_trade = True
 
             current_price = row['close']
             signal = None
