@@ -1515,12 +1515,21 @@ def display_swing_charts(backtester, symbol):
         hovermode='x unified',
         plot_bgcolor='white',
         paper_bgcolor='white',
-        font=dict(color='#1d1d1f', size=12)
+        font=dict(color='#1d1d1f', size=12),
+        legend=dict(
+            bgcolor='white',
+            bordercolor='#d2d2d7',
+            borderwidth=1,
+            font=dict(color='#1d1d1f', size=11)
+        )
     )
 
     # Make all axis text dark
     fig.update_xaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
     fig.update_yaxes(tickfont=dict(color='#1d1d1f'), title_font=dict(color='#1d1d1f'))
+
+    # Update subplot titles to be dark
+    fig.update_annotations(font=dict(color='#1d1d1f', size=14))
 
     st.plotly_chart(fig, use_container_width=True)
 
