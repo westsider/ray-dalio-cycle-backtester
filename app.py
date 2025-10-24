@@ -1240,11 +1240,15 @@ def show_swing_trading_page():
         ) / 100
 
     # Economic filter
+    st.sidebar.subheader("Economic Filter")
     use_economic_filter = st.sidebar.checkbox(
         "Only trade during Economic Expansion",
         value=False,
-        help="Filter trades to only occur during economic expansion periods"
+        help="Filter trades to only occur during economic expansion periods. This combines macro regime analysis with technical signals."
     )
+
+    if use_economic_filter:
+        st.sidebar.info("💡 Will fetch economic data from FRED API to identify expansion periods.")
 
     # Run backtest button
     run_swing_backtest = st.sidebar.button("🚀 Run Swing Backtest", type="primary")
@@ -1260,16 +1264,22 @@ def show_swing_trading_page():
                 # Fetch economic data if using filter
                 economic_expansion = None
                 if use_economic_filter:
-                    with st.spinner("Fetching economic cycle data..."):
-                        start_date = (datetime.now() - pd.Timedelta(days=days_back)).strftime('%Y-%m-%d')
-                        economic_data, _ = fetch_data(start_date)
-                        cycle_stages, _ = classify_cycles(economic_data, start_date)
+                    with st.spinner("Fetching economic cycle data from FRED..."):
+                        try:
+                            start_date = (datetime.now() - pd.Timedelta(days=days_back)).strftime('%Y-%m-%d')
+                            economic_data, _ = fetch_data(start_date)
+                            cycle_stages, _ = classify_cycles(economic_data, start_date)
 
-                        # Create expansion filter with DatetimeIndex
-                        economic_expansion = (cycle_stages == 'Expansion')
-                        # Ensure index is DatetimeIndex
-                        if not isinstance(economic_expansion.index, pd.DatetimeIndex):
-                            economic_expansion.index = pd.DatetimeIndex(economic_expansion.index)
+                            # Create expansion filter with DatetimeIndex
+                            economic_expansion = (cycle_stages == 'Expansion')
+                            # Ensure index is DatetimeIndex
+                            if not isinstance(economic_expansion.index, pd.DatetimeIndex):
+                                economic_expansion.index = pd.DatetimeIndex(economic_expansion.index)
+
+                            st.success(f"✓ Economic cycle data loaded ({len(economic_expansion)} days)")
+                        except Exception as e:
+                            st.warning(f"Could not load economic data: {str(e)}. Trading without economic filter.")
+                            economic_expansion = None
 
                 st.success(f"✓ Loaded {len(intraday_data)} 30-minute bars for {symbol}")
 
