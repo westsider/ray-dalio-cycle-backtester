@@ -1152,8 +1152,8 @@ def show_swing_trading_page():
         "Initial Capital ($)",
         min_value=1000,
         max_value=10000000,
-        value=100000,
-        step=10000,
+        value=30000,
+        step=1000,
         key="swing_initial_capital"
     )
 
